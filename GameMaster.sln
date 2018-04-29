@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameMaster", "GameMaster\GameMaster.csproj", "{0096EFC0-276F-42E5-B298-E031A1889DCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameMasterTests", "GameMasterTests\GameMasterTests.csproj", "{05F07B68-9CB6-4CD1-9926-FE288F748630}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0096EFC0-276F-42E5-B298-E031A1889DCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0096EFC0-276F-42E5-B298-E031A1889DCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0096EFC0-276F-42E5-B298-E031A1889DCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0096EFC0-276F-42E5-B298-E031A1889DCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05F07B68-9CB6-4CD1-9926-FE288F748630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05F07B68-9CB6-4CD1-9926-FE288F748630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05F07B68-9CB6-4CD1-9926-FE288F748630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05F07B68-9CB6-4CD1-9926-FE288F748630}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F4D85C6-E5B1-4755-BA20-DD3236EB8ED0}
+	EndGlobalSection
+EndGlobal
