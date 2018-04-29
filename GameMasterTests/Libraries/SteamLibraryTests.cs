@@ -16,30 +16,30 @@ namespace GameMaster.Libraries.Tests
         public void GetHomePathTest()
         {   // Demonstrate that we can instantiate a steam library with mock dependency.
             var loc = new Mock<ILibraryLocator>();
-            loc.Setup(l => l.GetLibraryPath()).Returns("G:\\");
+            loc.Setup(l => l.GetLibraryPath()).Returns("c:\\users\\ajn\\gamemaster_test\\source");
 
             ILibrary lib = new SteamLibrary(loc.Object);
-            Assert.AreEqual(lib.GetHomePath(), "G:\\");
+            Assert.AreEqual(lib.GetHomePath(), "c:\\users\\ajn\\gamemaster_test\\source");
         }
 
         [TestMethod()]
         public void GetContentDirectoriesTest()
         {
             var loc = new Mock<ILibraryLocator>();
-            loc.Setup(l => l.GetLibraryPath()).Returns("G:\\Bulk Storage\\Program Files (x86)\\Steam\\SteamApps\\common");
+            loc.Setup(l => l.GetLibraryPath()).Returns("c:\\users\\ajn\\gamemaster_test\\source");
 
             ILibrary lib = new SteamLibrary(loc.Object);
-            Assert.AreEqual(lib.GetGameDirectories()[0], "alien swarm");
+            Assert.AreEqual(lib.GetGameDirectories()[0], "first");
         }
 
         [TestMethod()]
         public void GetReparsePointsTest()
         {
             var loc = new Mock<ILibraryLocator>();
-            loc.Setup(l => l.GetLibraryPath()).Returns("G:\\Bulk Storage\\Program Files (x86)\\Steam\\SteamApps\\common");
+            loc.Setup(l => l.GetLibraryPath()).Returns("c:\\users\\ajn\\gamemaster_test\\source");
 
             ILibrary lib = new SteamLibrary(loc.Object);
-            Assert.AreEqual(lib.GetReparsePoints()[0], "Prey");
+            Assert.AreEqual(lib.GetReparsePoints()[0], "third");
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Microsoft.VisualBasic.FileIO;
 
 namespace GameMaster.Libraries
 {
@@ -46,6 +47,12 @@ namespace GameMaster.Libraries
                 }
             }
             return items;
+        }
+
+        public int MoveGameDirectory( string dir, string new_path )
+        {
+            FileSystem.MoveDirectory(_path + "\\" + dir, new_path + "\\" + dir, UIOption.AllDialogs, UICancelOption.ThrowException);
+            return 0;
         }
     }
 }
