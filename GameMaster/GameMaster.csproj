@@ -64,6 +64,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Junctions\Junctions.cs" />
     <Compile Include="Libraries\ILibrary.cs" />
     <Compile Include="Libraries\SteamLibrary.cs" />
     <Compile Include="LibraryLocators\ILibraryLocator.cs" />
