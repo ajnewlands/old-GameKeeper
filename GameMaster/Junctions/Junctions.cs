@@ -6,9 +6,51 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace GameMaster.Junctions
 {
+    [Serializable]
+    public class CreationFailedException : System.Exception
+    {
+        public CreationFailedException(): base() { }
+
+        public CreationFailedException(string message) : base(message) { }
+
+        public CreationFailedException(string message, System.Exception inner) : base(message, inner) { }
+
+        protected CreationFailedException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+        { }
+    }
+
+    [Serializable]
+    public class DeletionFailedException : System.Exception
+    {
+        public DeletionFailedException() : base() { }
+
+        public DeletionFailedException(string message) : base(message) { }
+
+        public DeletionFailedException(string message, System.Exception inner) : base(message, inner) { }
+
+        protected DeletionFailedException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+        { }
+    }
+
+    public class DereferenceFailedException : System.Exception
+    {
+        public DereferenceFailedException() : base() { }
+
+        public DereferenceFailedException(string message) : base(message) { }
+
+        public DereferenceFailedException(string message, System.Exception inner) : base(message, inner) { }
+
+        protected DereferenceFailedException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+        { }
+    }
+
     public static class Junctions
     {
         public const uint GENERIC_WRITE = 0x40000000;
@@ -48,14 +90,14 @@ namespace GameMaster.Junctions
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 0x3FF0)] public byte[] PathBuffer;
         }
 
-        public static int CreateJunction( string name, string target )
+        public static void CreateJunction( string name, string target )
         {
             // Create a directory to populate with our reparse point
             // If it isn't empty, create file will return 'directory not empty..'
             Directory.CreateDirectory(name);
             SafeFileHandle h = CreateFile(name, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
             if (h.IsInvalid)
-                return Marshal.GetLastWin32Error();
+                throw new Win32Exception(Marshal.GetLastWin32Error());
 
             // Transform the file into a reparse point           
             var targetBytes = Encoding.Unicode.GetBytes(prefix + target);
@@ -81,9 +123,9 @@ namespace GameMaster.Junctions
             var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
                         inBuffer, targetBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
             if (!r)
-                return Marshal.GetLastWin32Error();
-
-            return 0;
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            h.Close();
+            return;
         }
 
         public static int deleteJunction( string name )
