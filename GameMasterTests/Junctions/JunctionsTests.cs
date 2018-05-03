@@ -28,7 +28,8 @@ namespace GameMaster.Junctions.Tests
 
         [TestCleanup()]
         public void Cleanup()
-        { // Return to the original working directory and remove our test directory.
+        {   // Return to the original working directory and remove our test directory.
+            // Note that recursive deletes dont play well with junctions if the target was removed first!
             Directory.SetCurrentDirectory(_cwd);
             Directory.Delete(_testdir, true);        
         }
@@ -37,15 +38,24 @@ namespace GameMaster.Junctions.Tests
         public void CreateJunctionTest()
         {
             Directory.CreateDirectory( Path.Combine( _testdir, "target" ));
-            try
-            {
-                Junctions.CreateJunction("foobar", Path.Combine(_testdir, "target" ));
-            } catch (Win32Exception)
-            {
-                Assert.Fail();
-            }
+            Junctions.CreateJunction("foobar", Path.Combine(_testdir, "target" ));
             Directory.Delete("foobar");
             Directory.Delete("target");
+        }
+
+        [TestMethod()]
+        public void CreateJunctionRelativePathTest()
+        {
+            Directory.CreateDirectory("target");
+            Junctions.CreateJunction("foobar",  "target");
+            Directory.Delete("foobar");
+            Directory.Delete("target");
+        }
+
+        [TestMethod()]
+        public void CreateJunctionMissingLinkTargetTest()
+        {
+            Assert.ThrowsException<CreationFailedException>( () => Junctions.CreateJunction("foobar", "target") );
         }
 
         [TestMethod()]

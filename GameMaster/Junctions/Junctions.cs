@@ -15,6 +15,8 @@ namespace GameMaster.Junctions
     {
         public CreationFailedException(): base() { }
 
+        public CreationFailedException(int Win32ErrorCode) : base(new Win32Exception(Win32ErrorCode).Message) { }
+
         public CreationFailedException(string message) : base(message) { }
 
         public CreationFailedException(string message, System.Exception inner) : base(message, inner) { }
@@ -29,6 +31,8 @@ namespace GameMaster.Junctions
     {
         public DeletionFailedException() : base() { }
 
+        public DeletionFailedException(int Win32ErrorCode) : base(new Win32Exception(Win32ErrorCode).Message) { }
+
         public DeletionFailedException(string message) : base(message) { }
 
         public DeletionFailedException(string message, System.Exception inner) : base(message, inner) { }
@@ -41,6 +45,8 @@ namespace GameMaster.Junctions
     public class DereferenceFailedException : System.Exception
     {
         public DereferenceFailedException() : base() { }
+
+        public DereferenceFailedException(int Win32ErrorCode) : base(new Win32Exception(Win32ErrorCode).Message) { }
 
         public DereferenceFailedException(string message) : base(message) { }
 
@@ -92,12 +98,22 @@ namespace GameMaster.Junctions
 
         public static void CreateJunction( string name, string target )
         {
+            // If the target doesn't include a full path, assume relative to the current directory.
+            if (!Path.IsPathRooted(target))
+                Path.Combine(Directory.GetCurrentDirectory(), target);
+            // likewise if the link name omits a path, make it relative to the current directory.
+            if (!Path.IsPathRooted(name))
+                Path.Combine(Directory.GetCurrentDirectory(), name);
+            // Check target exists before trying to create a link
+            if (!Directory.Exists(target))
+                throw new CreationFailedException("Target directory " + target + " does not exist");
+
             // Create a directory to populate with our reparse point
             // If it isn't empty, create file will return 'directory not empty..'
             Directory.CreateDirectory(name);
             SafeFileHandle h = CreateFile(name, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
             if (h.IsInvalid)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new CreationFailedException(Marshal.GetLastWin32Error());
 
             // Transform the file into a reparse point           
             var targetBytes = Encoding.Unicode.GetBytes(prefix + target);
@@ -123,7 +139,8 @@ namespace GameMaster.Junctions
             var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
                         inBuffer, targetBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
             if (!r)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new CreationFailedException(Marshal.GetLastWin32Error());
+
             h.Close();
             return;
         }
