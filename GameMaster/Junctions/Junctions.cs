@@ -59,11 +59,11 @@ namespace GameMaster.Junctions
 
     public static class Junctions
     {
-        public const uint GENERIC_WRITE = 0x40000000;
-        public const uint GENERIC_READ = 0x80000000;
-        public const uint CREATE_NEW = 1;
-        public const uint CREATE_ALWAYS = 2;
-        public const uint OPEN_EXISTING = 3;
+        private const uint GENERIC_WRITE = 0x40000000;
+        private const uint GENERIC_READ = 0x80000000;
+        private const uint CREATE_NEW = 1;
+        private const uint CREATE_ALWAYS = 2;
+        private const uint OPEN_EXISTING = 3;
         private const uint IO_REPARSE_TAG_MOUNT_POINT = 0xA0000003;
         private const int FSCTL_SET_REPARSE_POINT = 0x000900A4;
         private const int FSCTL_GET_REPARSE_POINT = 0x000900A8;
@@ -74,14 +74,16 @@ namespace GameMaster.Junctions
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess,
-  uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition,
-  uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+            uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition,
+            uint dwFlagsAndAttributes, IntPtr hTemplateFile
+        );
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool DeviceIoControl(IntPtr hDevice, uint dwIoControlCode,
             IntPtr InBuffer, int nInBufferSize,
             IntPtr OutBuffer, int nOutBufferSize,
-            out int pBytesReturned, IntPtr lpOverlapped);
+            out int pBytesReturned, IntPtr lpOverlapped
+        );
 
         [StructLayout(LayoutKind.Sequential)]
         private struct REPARSE_DATA_BUFFER
@@ -100,10 +102,10 @@ namespace GameMaster.Junctions
         {
             // If the target doesn't include a full path, assume relative to the current directory.
             if (!Path.IsPathRooted(target))
-                Path.Combine(Directory.GetCurrentDirectory(), target);
+                target = Path.Combine(Directory.GetCurrentDirectory(), target);
             // likewise if the link name omits a path, make it relative to the current directory.
             if (!Path.IsPathRooted(name))
-                Path.Combine(Directory.GetCurrentDirectory(), name);
+                name = Path.Combine(Directory.GetCurrentDirectory(), name);
             // Check target exists before trying to create a link
             if (!Directory.Exists(target))
                 throw new CreationFailedException("Target directory " + target + " does not exist");
@@ -111,80 +113,98 @@ namespace GameMaster.Junctions
             // Create a directory to populate with our reparse point
             // If it isn't empty, create file will return 'directory not empty..'
             Directory.CreateDirectory(name);
+            
             SafeFileHandle h = CreateFile(name, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
-            if (h.IsInvalid)
-                throw new CreationFailedException(Marshal.GetLastWin32Error());
+            try
+            {           
+                if (h.IsInvalid)
+                    throw new CreationFailedException(Marshal.GetLastWin32Error());
 
-            // Transform the file into a reparse point           
-            var targetBytes = Encoding.Unicode.GetBytes(prefix + target);
-            var reparseDataBuffer =
-                new REPARSE_DATA_BUFFER
-                {
-                    ReparseTag = IO_REPARSE_TAG_MOUNT_POINT,
-                    ReparseDataLength = (ushort)(targetBytes.Length + 12),
-                    SubstituteNameOffset = 0,
-                    SubstituteNameLength = (ushort)targetBytes.Length,
-                    PrintNameOffset = (ushort)(targetBytes.Length + 2),
-                    PrintNameLength = 0,
-                    PathBuffer = new byte[0x3ff0] // This should not be fixed
-                };
+                // Transform the file into a reparse point           
+                var targetBytes = Encoding.Unicode.GetBytes(prefix + target);
+                var reparseDataBuffer =
+                    new REPARSE_DATA_BUFFER
+                    {
+                        ReparseTag = IO_REPARSE_TAG_MOUNT_POINT,
+                        ReparseDataLength = (ushort)(targetBytes.Length + 12),
+                        SubstituteNameOffset = 0,
+                        SubstituteNameLength = (ushort)targetBytes.Length,
+                        PrintNameOffset = (ushort)(targetBytes.Length + 2),
+                        PrintNameLength = 0,
+                        PathBuffer = new byte[32768] // This should not be fixed
+                    };
 
-            Array.Copy(targetBytes, reparseDataBuffer.PathBuffer, targetBytes.Length);
+                Array.Copy(targetBytes, reparseDataBuffer.PathBuffer, targetBytes.Length);
 
-            var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
-            var inBuffer = Marshal.AllocHGlobal(inBufferSize);
+                var inBufferSize = Marshal.SizeOf(reparseDataBuffer);
+                var inBuffer = Marshal.AllocHGlobal(inBufferSize);
 
-            Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
-            int bytesReturned;
-            var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
-                        inBuffer, targetBytes.Length + 20, IntPtr.Zero, 0, out bytesReturned, IntPtr.Zero);
-            if (!r)
-                throw new CreationFailedException(Marshal.GetLastWin32Error());
+                Marshal.StructureToPtr(reparseDataBuffer, inBuffer, false);
+        
+                var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_SET_REPARSE_POINT,
+                    inBuffer, targetBytes.Length + 20, IntPtr.Zero, 0, out int bytesReturned, IntPtr.Zero);
 
-            h.Close();
+                Marshal.FreeHGlobal(inBuffer);
+                if (!r)
+                    throw new CreationFailedException(Marshal.GetLastWin32Error());
+            }
+            finally
+            {
+                h.Close();
+            }
             return;
         }
 
-        public static int deleteJunction( string name )
+        public static void DeleteJunction( string name )
         {
             if ((File.GetAttributes(name) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint)
-                    Directory.Delete(name);
+                Directory.Delete(name);
             else // Not a junction
-                return -1;
-            return 0;
+                throw new DeletionFailedException(name + " is not a valid junction");
+            return;
         }
 
-        public static int getJunctionTarget( string name, out string target )
+        public static void GetJunctionTarget( string name, out string target )
         {
             target = "";
+            IntPtr outBuffer;
+
+            if (!Path.IsPathRooted(name))
+                name = Path.Combine(Directory.GetCurrentDirectory(), name);
 
             SafeFileHandle h = CreateFile(name, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
             if (h.IsInvalid)
-                return Marshal.GetLastWin32Error();
+                throw new DereferenceFailedException( Marshal.GetLastWin32Error() );
 
-            var outBufferSize = Marshal.SizeOf(typeof(REPARSE_DATA_BUFFER));
-            var outBuffer = Marshal.AllocHGlobal(outBufferSize);
+            try
+            {
+                var outBufferSize = Marshal.SizeOf(typeof(REPARSE_DATA_BUFFER));
+                outBuffer = Marshal.AllocHGlobal(outBufferSize);
 
-            int bytesReturned;
-            var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_GET_REPARSE_POINT,
-                IntPtr.Zero, 0, outBuffer, outBufferSize, out bytesReturned, IntPtr.Zero);
+                var r = DeviceIoControl(h.DangerousGetHandle(), FSCTL_GET_REPARSE_POINT,
+                    IntPtr.Zero, 0, outBuffer, outBufferSize, out int bytesReturned, IntPtr.Zero);
 
-            if (!r)
-                return Marshal.GetLastWin32Error();
+                if (!r)
+                    throw new DereferenceFailedException(Marshal.GetLastWin32Error());
 
-            var reparseDataBuffer = (REPARSE_DATA_BUFFER)
-            Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER));
-    
-            if (reparseDataBuffer.ReparseTag != IO_REPARSE_TAG_MOUNT_POINT)
-                return -1;
+                var reparseDataBuffer = (REPARSE_DATA_BUFFER)
+                Marshal.PtrToStructure(outBuffer, typeof(REPARSE_DATA_BUFFER));
 
-            var targetDir = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
-                reparseDataBuffer.SubstituteNameOffset, reparseDataBuffer.SubstituteNameLength);
+                if (reparseDataBuffer.ReparseTag != IO_REPARSE_TAG_MOUNT_POINT)
+                    throw new DereferenceFailedException(target + " is not a junction");
 
-            target = targetDir.Substring(prefix.Length);
+                var targetDir = Encoding.Unicode.GetString(reparseDataBuffer.PathBuffer,
+                    reparseDataBuffer.SubstituteNameOffset, reparseDataBuffer.SubstituteNameLength);
+
+                target = targetDir.Substring(prefix.Length);
+            }
+            finally
+            {
+                h.Close();
+            }
 
             Marshal.FreeHGlobal(outBuffer);
-            return 0;
+            return;
         }
     }
 }

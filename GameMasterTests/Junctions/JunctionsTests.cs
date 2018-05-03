@@ -1,12 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GameMaster.Junctions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.IO;
 
 namespace GameMaster.Junctions.Tests
@@ -55,24 +47,50 @@ namespace GameMaster.Junctions.Tests
         [TestMethod()]
         public void CreateJunctionMissingLinkTargetTest()
         {
-            Assert.ThrowsException<CreationFailedException>( () => Junctions.CreateJunction("foobar", "target") );
+            Assert.ThrowsException<CreationFailedException>( 
+                () => Junctions.CreateJunction("foobar", "target") 
+            );
         }
 
         [TestMethod()]
-        public void getJunctionTargetTest()
+        public void GetJunctionTargetTest()
         {
-            string target;
-            var r = Junctions.getJunctionTarget("C:\\Users\\ajn\\gamemaster_test\\source\\test", out target);
-
-            Assert.AreEqual(r,0);
-            Assert.AreEqual(target, "C:\\Users\\ajn\\gamemaster_test\\dest\\test");
+            Directory.CreateDirectory("target");
+            Junctions.CreateJunction("foo", "target");
+            Junctions.GetJunctionTarget("foo", out string target);
+            Assert.AreEqual(Path.Combine(Directory.GetCurrentDirectory(), "target"), target);
+            Directory.Delete("foo");
+            Directory.Delete("target");
         }
 
         [TestMethod()]
-        public void deleteJunctionTest()
+        public void GetJunctionInvalidLinkTest()
         {
-            var r = Junctions.deleteJunction("C:\\Users\\ajn\\gamemaster_test\\source\\test");
-            Assert.AreEqual(r, 0);
+            Assert.ThrowsException<DereferenceFailedException> (
+                () => Junctions.GetJunctionTarget("foo", out string target)
+            );
+        }
+
+        [TestMethod()]
+        public void DeleteJunctionTest()
+        {
+            Directory.CreateDirectory("target");
+            Junctions.CreateJunction("foo", "target");
+            Junctions.DeleteJunction("foo");
+            Directory.Delete("target");
+            Assert.ThrowsException<System.IO.DirectoryNotFoundException>(
+                () => Directory.Delete("foo") // Already deleted
+            );
+        }
+
+        [TestMethod()]
+        public void DeleteJunctionDirectoryTargetTest()
+        {
+            Directory.CreateDirectory("test_dir");
+            Assert.ThrowsException<DeletionFailedException>(
+                () => Junctions.DeleteJunction("test_dir")
+            );
+            Directory.Delete("test_dir"); // still here - didn't get nuked.
         }
     }
 }

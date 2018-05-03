@@ -24,20 +24,22 @@ namespace GameMaster.Libraries
 
         public List<string> GetGameDirectories()
         {
-            return GetFileSystemEntries(FileAttributes.Directory);
+            return GetFileSystemEntries(
+                FileAttributes.ReparsePoint, false
+            );
         }
 
         public List<string> GetReparsePoints()
         {
-            return GetFileSystemEntries(FileAttributes.ReparsePoint);
+            return GetFileSystemEntries(FileAttributes.ReparsePoint, true);
         }
 
-        private List<string> GetFileSystemEntries( FileAttributes attr)
+        private List<string> GetFileSystemEntries( FileAttributes attr, bool has_attr)
         {
             var items = new List<string>();
             foreach (var directory in System.IO.Directory.GetDirectories(_path))
             {
-                if ( (File.GetAttributes(directory) & attr) == attr)
+                if ( ((File.GetAttributes(directory) & attr) == attr )== has_attr)
                 {
                     items.Add(Path.GetFileName(directory));
                 }
