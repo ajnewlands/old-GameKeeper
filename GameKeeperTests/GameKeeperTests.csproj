@@ -77,9 +77,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameMaster\GameMaster.csproj">
+    <ProjectReference Include="..\GameKeeper\GameKeeper.csproj">
       <Project>{0096EFC0-276F-42E5-B298-E031A1889DCD}</Project>
-      <Name>GameMaster</Name>
+      <Name>GameKeeper</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
