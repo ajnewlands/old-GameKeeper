@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static GameMaster.Junctions.Junctions;
 using Moq;
 using System.IO;
+using GameKeeper;
 
-
-namespace GameMaster.Libraries.Tests
+namespace GameKeeper.Libraries.Tests
 {
     [TestClass()]
     public class SteamLibraryTests
@@ -35,7 +34,7 @@ namespace GameMaster.Libraries.Tests
             var loc = new Mock<ILibraryLocator>();
             loc.Setup(l => l.GetLibraryPath()).Returns(_testdir);
 
-            ILibrary lib = new SteamLibrary(loc.Object);
+            ILibrary lib = new GenericGameLibrary(loc.Object);
             Assert.AreEqual(lib.GetHomePath(), _testdir);
         }
 
@@ -45,12 +44,12 @@ namespace GameMaster.Libraries.Tests
             var loc = new Mock<ILibraryLocator>();
             loc.Setup(l => l.GetLibraryPath()).Returns(_testdir);
             Directory.CreateDirectory("ccc");
-            CreateJunction("aaa", "ccc");
+            Junctions.CreateJunction("aaa", "ccc");
 
-            ILibrary lib = new SteamLibrary(loc.Object);
+            ILibrary lib = new GenericGameLibrary(loc.Object);
             Assert.AreEqual(1, lib.GetGameDirectories().Count);
             Assert.AreEqual("ccc", lib.GetGameDirectories()[0]);
-            DeleteJunction("aaa");
+            Junctions.DeleteJunction("aaa");
             Directory.Delete("ccc");
         }
 
@@ -60,12 +59,12 @@ namespace GameMaster.Libraries.Tests
             var loc = new Mock<ILibraryLocator>();
             loc.Setup(l => l.GetLibraryPath()).Returns(_testdir);
             Directory.CreateDirectory("ccc");
-            CreateJunction("aaa", "ccc");
+            Junctions.CreateJunction("aaa", "ccc");
 
-            ILibrary lib = new SteamLibrary(loc.Object);
+            ILibrary lib = new GenericGameLibrary(loc.Object);
             Assert.AreEqual(1, lib.GetReparsePoints().Count);
             Assert.AreEqual("aaa", lib.GetReparsePoints()[0]);
-            DeleteJunction("aaa");
+            Junctions.DeleteJunction("aaa");
             Directory.Delete("ccc");
         }
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace GameMaster.Junctions.Tests
+namespace GameKeeper.Tests
 {
     [TestClass()]
     public class JunctionsTests

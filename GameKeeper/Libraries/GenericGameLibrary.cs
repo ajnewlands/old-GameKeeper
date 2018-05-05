@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.VisualBasic.FileIO;
 
-namespace GameMaster.Libraries
-{
-    public class SteamLibrary : ILibrary
+namespace GameKeeper
+{   
+/// <summary>
+/// A GenericGameLibrary is one where there is a single directory with named subdirectories, one per game.
+/// We can infer the content of each subdirectory from the directory name.
+/// We can relocate the game simply by moving these directories and linking the old location to the new.
+/// </summary>
+    public class GenericGameLibrary : ILibrary
     {
         private string _path;
 
-        public SteamLibrary( ILibraryLocator loc )
+        public GenericGameLibrary( ILibraryLocator loc )
         {
             _path = loc.GetLibraryPath();
         }
@@ -51,10 +56,6 @@ namespace GameMaster.Libraries
             return items;
         }
 
-        public int MoveGameDirectory( string dir, string new_path )
-        {
-            FileSystem.MoveDirectory(_path + "\\" + dir, new_path + "\\" + dir, UIOption.AllDialogs, UICancelOption.ThrowException);
-            return 0;
-        }
+
     }
 }

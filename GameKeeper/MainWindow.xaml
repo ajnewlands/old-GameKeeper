@@ -1,12 +1,60 @@
-﻿<Window x:Class="GameMaster.MainWindow"
+﻿<Window x:Class="GameKeeper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:GameMaster"
+        xmlns:local="clr-namespace:GameKeeper"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="GameKeeper" Height="450" Width="800">
+    <Window.Resources>
+
+        <CollectionViewSource x:Key="GameCollectionViewSource" CollectionViewType="ListCollectionView">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="library"/>
+            </CollectionViewSource.GroupDescriptions>
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="library"/>
+                <scm:SortDescription PropertyName="name"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <DataGrid x:Name="GameGrid" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" HorizontalAlignment="Left" Margin="18,22,0,0" VerticalAlignment="Top" Width="760" AutoGenerateColumns="False" Height="381">
+        <DataGrid.Columns>
+            <!--<DataGridTextColumn Header="Library" Binding="{Binding library}" TextBlock.TextAlignment="Center"  />-->
+            <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding library}"  />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Game" Width="SizeToCells" IsReadOnly="True">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding name}"  />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="" Width="SizeToCells" IsReadOnly="True" CanUserResize="False">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <local:ExportImportButton x:Name="import_export" IsExport="{Binding exporting}" GameName="{Binding name}" GameLibrary="{Binding library}"  Click="ExportButtonClick">
+                            <Image Source="{Binding image}"/>
+                            
+                        </local:ExportImportButton>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Location" Width="SizeToCells" IsReadOnly="True">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding location}" ToolTip="{Binding path}" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+        </DataGrid.Columns>
+
+    </DataGrid>
+
 </Window>

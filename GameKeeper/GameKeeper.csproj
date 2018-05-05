@@ -81,8 +81,9 @@
     </Compile>
     <Compile Include="Junctions\Junctions.cs" />
     <Compile Include="Libraries\ILibrary.cs" />
-    <Compile Include="Libraries\SteamLibrary.cs" />
+    <Compile Include="Libraries\GenericGameLibrary.cs" />
     <Compile Include="LibraryLocators\ILibraryLocator.cs" />
+    <Compile Include="LibraryLocators\RegistryLibraryLocator.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -125,6 +126,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Import_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Export_16x.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameMaster.Libraries
+namespace GameKeeper
 {
     public interface ILibrary
     {

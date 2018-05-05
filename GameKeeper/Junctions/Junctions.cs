@@ -8,7 +8,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace GameMaster.Junctions
+namespace GameKeeper
 {
     [Serializable]
     public class CreationFailedException : System.Exception
