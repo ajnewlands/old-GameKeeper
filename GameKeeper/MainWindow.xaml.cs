@@ -6,14 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Drawing;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace GameKeeper
 {
@@ -127,8 +121,30 @@ namespace GameKeeper
             return;
         }
 
+        private string GetGKLibraryPath()
+        {
+            CommonOpenFileDialog GKFolderDialog = new CommonOpenFileDialog();
+            GKFolderDialog.IsFolderPicker = true;
+            GKFolderDialog.DefaultDirectory = System.IO.Path.Combine(
+                System.IO.Path.GetPathRoot(Environment.SystemDirectory),
+                "GameKeeper"
+            );
+            GKFolderDialog.DefaultFileName = GKFolderDialog.DefaultDirectory;
+            CommonFileDialogResult r = GKFolderDialog.ShowDialog();
+            if (r == CommonFileDialogResult.Ok)
+            {
+                return GKFolderDialog.FileName;
+            }
+
+            return null;
+        }
+
         public MainWindow()
         {
+            if (null == GetGKLibraryPath() )
+            {
+                this.Close();
+            }
 
             ILibraryLocator steam = new RegistryLibraryLocator("SOFTWARE\\WOW6432Node\\Valve\\Steam", "InstallPath", "SteamApps\\common");
             if (steam.GetLibraryPath() != null)
