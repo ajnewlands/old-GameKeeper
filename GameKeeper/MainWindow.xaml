@@ -22,21 +22,21 @@
     <DataGrid x:Name="GameGrid" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" HorizontalAlignment="Left" Margin="18,22,0,0" VerticalAlignment="Top" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualWidth}" AutoGenerateColumns="False"  AlternatingRowBackground="#FFC7D8D7">
         <DataGrid.Columns>
             <!--<DataGridTextColumn Header="Library" Binding="{Binding library}" TextBlock.TextAlignment="Center"  />-->
-            <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True">
+            <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <Label Content="{Binding library}"  />
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Game" Width="SizeToCells" IsReadOnly="True">
+            <DataGridTemplateColumn Header="Game" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <Label Content="{Binding name}"  />
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Move" Width="SizeToCells" IsReadOnly="True" CanUserResize="False">
+            <DataGridTemplateColumn Header="Move" Width="SizeToCells" IsReadOnly="True" CanUserResize="False" MinWidth="50">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <local:ExportImportButton x:Name="import_export" IsExport="{Binding exporting}" GameName="{Binding name}" GameLibrary="{Binding library}"  Click="ExportButtonClick">
@@ -46,7 +46,7 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Location" Width="SizeToCells" IsReadOnly="True">
+            <DataGridTemplateColumn Header="Location" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <Label Content="{Binding location}" ToolTip="{Binding path}" />

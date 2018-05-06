@@ -49,7 +49,7 @@ namespace GameKeeper
         private string _sendToGKImage = "Import_16x.png";
         private string _returnFromGKImage = "Export_16x.png";
 
-        private string _GKLibraryPath = "C:\\GameKeeper";
+        private string _GKLibraryPath;
 
         private System.Collections.ObjectModel.ObservableCollection<game> _gameView = new System.Collections.ObjectModel.ObservableCollection<game>();
 
@@ -74,6 +74,25 @@ namespace GameKeeper
                 this.exporting = exporting;
             }
 
+        }
+
+        private string GetLibraryPathFromReg()
+        {
+            try
+            {
+                var hkcu = Microsoft.Win32.Registry.CurrentUser;
+                return hkcu.OpenSubKey("Software\\AJN\\GameKeeper", false).GetValue("Path").ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void SetLibraryPathInReg( string path )
+        {
+            var hkcu = Microsoft.Win32.Registry.CurrentUser;
+            hkcu.CreateSubKey("Software\\AJN\\GameKeeper").SetValue("Path", path);
         }
 
         private void BuildGameLCV()
@@ -120,8 +139,7 @@ namespace GameKeeper
             return;
         }
 
-        [STAThread]
-        private string GetGKLibraryPath()
+        private string GetLibraryPathFromDialog()
         {
             var fbd = new System.Windows.Forms.FolderBrowserDialog();
             fbd.SelectedPath = System.IO.Path.Combine(
@@ -143,7 +161,18 @@ namespace GameKeeper
         {
             // This construct is used to fully initialize the main window.
             // Otherwise we lose focus and it ends up down the bottom of the z-axis.
-            var p = GetGKLibraryPath();
+            _GKLibraryPath = GetLibraryPathFromReg();
+            if (_GKLibraryPath == null)
+            {
+                MessageBox.Show(
+                    "Before continuing, please select a default directory for game storage.\n"
+                    + "This is where GameKeeper will store relocated games.\n\n"
+                    + "It can be changed later and GameKeeper will keep track of any previously moved games",
+                    "Set GameKeeper storage directory"
+                    );
+                _GKLibraryPath = GetLibraryPathFromDialog();
+                SetLibraryPathInReg(_GKLibraryPath);
+            }
         }
 
         private static void OnDirectoryChanged(object source, System.IO.FileSystemEventArgs e)
@@ -153,8 +182,7 @@ namespace GameKeeper
             MainWindow._main.Dispatcher.Invoke(new Action(delegate ()
             {
                 ((MainWindow)Application.Current.MainWindow).BuildGameLCV();
-            }));
-            
+            }));            
         }
         private static void OnDirectoryRenamed(object source, System.IO.RenamedEventArgs e)
         {
@@ -164,7 +192,6 @@ namespace GameKeeper
             {
                 ((MainWindow)Application.Current.MainWindow).BuildGameLCV();
             }));
-
         }
 
         public MainWindow()
@@ -250,6 +277,5 @@ namespace GameKeeper
             }
             FileSystem.DeleteDirectory(dir, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
         }
-
     }
 }

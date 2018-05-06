@@ -18,7 +18,7 @@ namespace GameKeeper
 
             try
             {
-                var path = hklm64.OpenSubKey(registryKey, false).GetValue( registryVal );
+                var path = hklm64.OpenSubKey(registryKey, false).GetValue( registryVal, null );
 
                 if (path != null)
                 {
@@ -28,7 +28,7 @@ namespace GameKeeper
                         _path = Path.Combine(_path, suffix);
                 }
             }
-            catch (System.IO.IOException)
+            catch (System.NullReferenceException)
             {
                 // Steam not found.
             }
