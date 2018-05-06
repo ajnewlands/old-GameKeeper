@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Microsoft.VisualBasic.FileIO;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace GameKeeper
 {
@@ -121,31 +120,34 @@ namespace GameKeeper
             return;
         }
 
+        [STAThread]
         private string GetGKLibraryPath()
         {
-            CommonOpenFileDialog GKFolderDialog = new CommonOpenFileDialog();
-            GKFolderDialog.IsFolderPicker = true;
-            GKFolderDialog.DefaultDirectory = System.IO.Path.Combine(
+            var fbd = new System.Windows.Forms.FolderBrowserDialog();
+            fbd.SelectedPath = System.IO.Path.Combine(
                 System.IO.Path.GetPathRoot(Environment.SystemDirectory),
                 "GameKeeper"
             );
-            GKFolderDialog.DefaultFileName = GKFolderDialog.DefaultDirectory;
-            CommonFileDialogResult r = GKFolderDialog.ShowDialog();
-            if (r == CommonFileDialogResult.Ok)
+            fbd.Description = "Set the GameKeeper default library folder";
+            var r = fbd.ShowDialog();
+
+            if (r == System.Windows.Forms.DialogResult.OK)
             {
-                return GKFolderDialog.FileName;
+                return fbd.SelectedPath;
             }
 
             return null;
         }
 
+        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // This construct is used to fully initialize the main window.
+            // Otherwise we lose focus and it ends up down the bottom of the z-axis.
+            var p = GetGKLibraryPath();
+        }
+
         public MainWindow()
         {
-            if (null == GetGKLibraryPath() )
-            {
-                this.Close();
-            }
-
             ILibraryLocator steam = new RegistryLibraryLocator("SOFTWARE\\WOW6432Node\\Valve\\Steam", "InstallPath", "SteamApps\\common");
             if (steam.GetLibraryPath() != null)
             {
@@ -153,11 +155,11 @@ namespace GameKeeper
             }
             
             InitializeComponent();
-
-            //var games = BuildGameLCV();
             BuildGameLCV();
             CollectionViewSource gameCollectionViewSource = (CollectionViewSource)FindResource("GameCollectionViewSource");
             gameCollectionViewSource.Source = _gameView;
+
+            Loaded += MainWindow_Loaded; // Handle post initialization
         }
 
         private void ExportButtonClick(object sender, RoutedEventArgs e)
