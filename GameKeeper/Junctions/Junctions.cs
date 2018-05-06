@@ -75,15 +75,13 @@ namespace GameKeeper
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess,
             uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition,
-            uint dwFlagsAndAttributes, IntPtr hTemplateFile
-        );
+            uint dwFlagsAndAttributes, IntPtr hTemplateFile);
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool DeviceIoControl(IntPtr hDevice, uint dwIoControlCode,
             IntPtr InBuffer, int nInBufferSize,
             IntPtr OutBuffer, int nOutBufferSize,
-            out int pBytesReturned, IntPtr lpOverlapped
-        );
+            out int pBytesReturned, IntPtr lpOverlapped);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct REPARSE_DATA_BUFFER

@@ -69,6 +69,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="CompressorTests.cs" />
     <Compile Include="Junctions\JunctionsTests.cs" />
     <Compile Include="Libraries\SteamLibraryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

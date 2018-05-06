@@ -83,6 +83,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compressor.cs" />
     <Compile Include="Junctions\Junctions.cs" />
     <Compile Include="Libraries\ILibrary.cs" />
     <Compile Include="Libraries\GenericGameLibrary.cs" />
