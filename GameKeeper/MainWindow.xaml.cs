@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualBasic.FileIO;
 
 namespace GameKeeper
 {
@@ -172,9 +169,15 @@ namespace GameKeeper
             {
                 var source = System.IO.Path.Combine(_libraries[lib].GetHomePath().ToString(), game);
                 var dest = System.IO.Path.Combine(_GKLibraryPath, lib, game);
-                MessageBox.Show("moving " + source + " to " + dest);
-                MoveGameDirectory(source, dest);
-                Junctions.CreateJunction(source, dest);
+
+                try
+                {
+                    MoveGameDirectory(source, dest);
+                    Junctions.CreateJunction(source, dest);
+                }
+                catch (OperationCanceledException) {
+                    // make sure we dont create the junction 
+                }
             }
             else
             {
@@ -182,10 +185,18 @@ namespace GameKeeper
                     System.IO.Path.Combine(_libraries[lib].GetHomePath().ToString(), game),
                     out string source);
                 var dest = System.IO.Path.Combine(_libraries[lib].GetHomePath().ToString(), game);
-                MessageBox.Show("moving " + source + " to " + dest);
 
+                
                 Junctions.DeleteJunction(System.IO.Path.Combine(_libraries[lib].GetHomePath().ToString(), game));
-                MoveGameDirectory(source, dest);
+                try
+                {
+                    MoveGameDirectory(source, dest);
+                }
+                catch (OperationCanceledException)
+                {   // Put the junction back where it was
+                    // Note cancelling the copy prevents a partial end product being created.
+                    Junctions.CreateJunction(dest, source);
+                }
             }
 
             BuildGameLCV();
@@ -194,8 +205,17 @@ namespace GameKeeper
 
         public void MoveGameDirectory(string dir, string new_path)
         {
-            FileSystem.MoveDirectory(dir, new_path, UIOption.AllDialogs, UICancelOption.ThrowException);
-            return;
+            //FileSystem.MoveDirectory(dir, new_path, UIOption.AllDialogs, UICancelOption.ThrowException);
+            try
+            {
+                FileSystem.CopyDirectory(dir, new_path, UIOption.AllDialogs, UICancelOption.ThrowException);               
+            } 
+            catch (OperationCanceledException)
+            {   // In other words, "revert" by deleting the new directory and keeping the old one.
+                FileSystem.DeleteDirectory(new_path, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
+                throw;
+            }
+            FileSystem.DeleteDirectory(dir, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
         }
     }
 }
