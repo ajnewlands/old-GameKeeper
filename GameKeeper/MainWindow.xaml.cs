@@ -41,7 +41,10 @@ namespace GameKeeper
 
     public partial class MainWindow : Window
     {
+        public static MainWindow _main;
+
         Dictionary<string, ILibrary> _libraries = new Dictionary<string, ILibrary>();
+        List<System.IO.FileSystemWatcher> _watchers = new List<System.IO.FileSystemWatcher>();
 
         private string _sendToGKImage = "Import_16x.png";
         private string _returnFromGKImage = "Export_16x.png";
@@ -143,15 +146,47 @@ namespace GameKeeper
             var p = GetGKLibraryPath();
         }
 
+        private static void OnDirectoryChanged(object source, System.IO.FileSystemEventArgs e)
+        {   
+            // This will update the UI not only when we move something within GK,
+            // but also when something changes outside.
+            MainWindow._main.Dispatcher.Invoke(new Action(delegate ()
+            {
+                ((MainWindow)Application.Current.MainWindow).BuildGameLCV();
+            }));
+            
+        }
+        private static void OnDirectoryRenamed(object source, System.IO.RenamedEventArgs e)
+        {
+            // This will update the UI not only when we move something within GK,
+            // but also when something changes outside.
+            MainWindow._main.Dispatcher.Invoke(new Action(delegate ()
+            {
+                ((MainWindow)Application.Current.MainWindow).BuildGameLCV();
+            }));
+
+        }
+
         public MainWindow()
         {
             ILibraryLocator steam = new RegistryLibraryLocator("SOFTWARE\\WOW6432Node\\Valve\\Steam", "InstallPath", "SteamApps\\common");
             if (steam.GetLibraryPath() != null)
             {
                 _libraries["Steam"] = new GenericGameLibrary(steam);
+
+                System.IO.FileSystemWatcher watcher = new System.IO.FileSystemWatcher();
+                watcher.Path = _libraries["Steam"].GetHomePath();
+                watcher.NotifyFilter = System.IO.NotifyFilters.DirectoryName | System.IO.NotifyFilters.LastWrite | System.IO.NotifyFilters.CreationTime;
+                watcher.Created += new System.IO.FileSystemEventHandler(OnDirectoryChanged);
+                watcher.Deleted += new System.IO.FileSystemEventHandler(OnDirectoryChanged);
+                watcher.Renamed += new System.IO.RenamedEventHandler(OnDirectoryRenamed); // different signature, same thing.
+                watcher.Filter = "*";
+                watcher.EnableRaisingEvents = true;
+                _watchers.Add(watcher);
             }
             
             InitializeComponent();
+            _main = this;
             BuildGameLCV();
             CollectionViewSource gameCollectionViewSource = (CollectionViewSource)FindResource("GameCollectionViewSource");
             gameCollectionViewSource.Source = _gameView;
@@ -198,8 +233,6 @@ namespace GameKeeper
                     Junctions.CreateJunction(dest, source);
                 }
             }
-
-            BuildGameLCV();
         }
 
 
@@ -217,5 +250,6 @@ namespace GameKeeper
             }
             FileSystem.DeleteDirectory(dir, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently);
         }
+
     }
 }

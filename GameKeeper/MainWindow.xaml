@@ -19,7 +19,7 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </Window.Resources>
-    <DataGrid x:Name="GameGrid" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" HorizontalAlignment="Left" Margin="18,22,0,0" VerticalAlignment="Top" Width="760" AutoGenerateColumns="False" Height="381">
+    <DataGrid x:Name="GameGrid" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" HorizontalAlignment="Left" Margin="18,22,0,0" VerticalAlignment="Top" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualWidth}" AutoGenerateColumns="False"  AlternatingRowBackground="#FFC7D8D7">
         <DataGrid.Columns>
             <!--<DataGridTextColumn Header="Library" Binding="{Binding library}" TextBlock.TextAlignment="Center"  />-->
             <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True">
@@ -36,12 +36,12 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="" Width="SizeToCells" IsReadOnly="True" CanUserResize="False">
+            <DataGridTemplateColumn Header="Move" Width="SizeToCells" IsReadOnly="True" CanUserResize="False">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <local:ExportImportButton x:Name="import_export" IsExport="{Binding exporting}" GameName="{Binding name}" GameLibrary="{Binding library}"  Click="ExportButtonClick">
                             <Image Source="{Binding image}"/>
-                            
+
                         </local:ExportImportButton>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
