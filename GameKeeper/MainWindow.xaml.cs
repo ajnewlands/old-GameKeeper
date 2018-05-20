@@ -43,8 +43,8 @@ namespace GameKeeper
     {
         public static MainWindow _main;
 
-        Dictionary<string, ILibrary> _libraries = new Dictionary<string, ILibrary>();
-        List<System.IO.FileSystemWatcher> _watchers = new List<System.IO.FileSystemWatcher>();
+        private Dictionary<string, ILibrary> _libraries = new Dictionary<string, ILibrary>();
+        private List<System.IO.FileSystemWatcher> _watchers = new List<System.IO.FileSystemWatcher>();
 
         private string _sendToGKImage = "Import_16x.png";
         private string _returnFromGKImage = "Export_16x.png";

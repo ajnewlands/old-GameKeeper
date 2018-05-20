@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GameKeeper"
         xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
-        Title="GameKeeper" Height="450" Width="800">
+        Title="GameKeeper" Height="482" Width="650">
     <Window.Resources>
 
         <CollectionViewSource x:Key="GameCollectionViewSource" CollectionViewType="ListCollectionView">
@@ -19,42 +19,51 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </Window.Resources>
-    <DataGrid x:Name="GameGrid" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" HorizontalAlignment="Left" Margin="18,22,0,0" VerticalAlignment="Top" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualWidth}" AutoGenerateColumns="False"  AlternatingRowBackground="#FFC7D8D7">
-        <DataGrid.Columns>
-            <!--<DataGridTextColumn Header="Library" Binding="{Binding library}" TextBlock.TextAlignment="Center"  />-->
-            <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding library}"  />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Game" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding name}"  />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Move" Width="SizeToCells" IsReadOnly="True" CanUserResize="False" MinWidth="50">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <local:ExportImportButton x:Name="import_export" IsExport="{Binding exporting}" GameName="{Binding name}" GameLibrary="{Binding library}"  Click="ExportButtonClick">
-                            <Image Source="{Binding image}"/>
+    <Grid HorizontalAlignment="Stretch" Margin="1,0,1,1" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="273*"/>
+            <ColumnDefinition Width="47*"/>
+        </Grid.ColumnDefinitions>
+        <DataGrid x:Name="GameGrid" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{StaticResource GameCollectionViewSource}" ItemsSource="{Binding}" Margin="0,25,0,0" AutoGenerateColumns="False"  AlternatingRowBackground="#FFC7D8D7" Grid.ColumnSpan="2">
+            <DataGrid.Columns>
+                <!--<DataGridTextColumn Header="Library" Binding="{Binding library}" TextBlock.TextAlignment="Center"  />-->
+                <DataGridTemplateColumn Header="Library" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding library}"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Game" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding name}"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Move" Width="SizeToCells" IsReadOnly="True" CanUserResize="False" MinWidth="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:ExportImportButton x:Name="import_export" IsExport="{Binding exporting}" GameName="{Binding name}" GameLibrary="{Binding library}"  Click="ExportButtonClick">
+                                <Image Source="{Binding image}"/>
 
-                        </local:ExportImportButton>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Location" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding location}" ToolTip="{Binding path}" />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-        </DataGrid.Columns>
+                            </local:ExportImportButton>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Location" Width="SizeToCells" IsReadOnly="True" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding location}" ToolTip="{Binding path}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
 
-    </DataGrid>
+        </DataGrid>
+        <Menu HorizontalAlignment="Right" HorizontalContentAlignment="Right" Background="Transparent" Height="20" VerticalAlignment="Top" MinWidth="70" Width="65" Grid.Column="1">
+            <MenuItem Header="_Options"  HorizontalAlignment="Right" HorizontalContentAlignment="Center" Margin="2,0,2,0" MinWidth="66"></MenuItem>
+        </Menu>
+    </Grid>
 
 </Window>
